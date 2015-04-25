@@ -6,16 +6,28 @@ import Data.Maybe
 import qualified Data.ByteString.Char8 as B
 import Control.Monad (void)
 
-import WHBot.Utilities
+import WHBot.Behaviors
 
-botsnack :: B.ByteString -> EventFunc
-botsnack channel s msg = 
-  if (mMsg msg) == "|botsnack"
-    then sendMsg s channel "delicious, mkay"
-    else return ()
+botsnackB :: ChannelBehavior
+botsnackB = 
+  ChannelBehavior $
+    \channel (s, msg) -> 
+      if mMsg msg == "|botsnack"
+        then sendMsg s channel "delicious, mkay"
+        else return ()
 
-data BState = BState { bsValue :: Int }
+counterB :: LoopBehavior Int
+counterB =
+  LoopBehavior { loopComputer = computer, loopInitState = 0 }
+  where
+    computer state (s, msg) =
+      case mMsg msg of
+        "+1" -> return $ (state :: Int) + 1
+        "|counter" -> (sendMsg s (fromJust $ mOrigin msg) $ B.pack (show state)) >> return state
+        _ -> return state
 
+events :: IO [IrcEvent]
 events = 
-  map (Privmsg . doWithChan)
-    [ botsnack ]
+  sequence 
+    [ eventFromBehavior botsnackB
+    , eventFromBehavior counterB ]

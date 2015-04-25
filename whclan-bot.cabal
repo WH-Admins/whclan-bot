@@ -17,7 +17,7 @@ cabal-version:       >=1.10
 
 executable whclan-bot
   main-is:             Main.hs
-  other-modules:       WHBot, WHBot.Utilities
+  other-modules:       WHBot, WHBot.Behaviors
   -- other-extensions:    
   build-depends:       base >=4.7 && <4.8, simpleirc == 0.3.0, bytestring
   hs-source-dirs:      src/
