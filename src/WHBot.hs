@@ -21,11 +21,10 @@ linkB = ChannelBehavior $ \channel (s, msg) ->
     if head contentWords == "!link" then
       sendMsg s (fromMaybe "" $ mOrigin msg) $
         case tail contentWords of
-          [linkname] -> 
-            ["site"] -> "http://whclan.uk.to/"
-            ["roster"] -> "http://goo.gl/IxfKm5"
-            ["apl"] -> "https://altitudegame.com/forums/showthread.php?t=9733"
-            _ -> "possible arguments: site roster apl"
+          ["site"] -> "http://whclan.uk.to/"
+          ["roster"] -> "http://goo.gl/IxfKm5"
+          ["apl"] -> "https://altitudegame.com/forums/showthread.php?t=9733"
+          _ -> "possible arguments: site roster apl"
      else return ()
 
 counterB :: LoopBehavior Int
