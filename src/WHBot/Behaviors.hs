@@ -1,10 +1,11 @@
 module WHBot.Behaviors
-  ( EventTrigger
+  ( replyMessage, getContentWords
+  , EventTrigger
 
   , eventFromBehavior 
 
+  , SimpleBehavior(..)
   , ChannelBehavior(..)
-  
   , LoopBehavior(..)) where
 
 import Network.SimpleIRC
@@ -22,20 +23,32 @@ chanFromMsg s msg =
         _ -> failReturn 
     Nothing -> failReturn
   where
-    failReturn = 
-      do
-        sendMsg s (fromJust $ mOrigin msg) "talk to me on a channel you fool" 
-        return Nothing
+    failReturn = return Nothing
 
 type EventTrigger = (MIrc, IrcMessage)
 
+replyMessage :: EventTrigger -> B.ByteString -> IO ()
+replyMessage (s, msg) = sendMsg s (fromJust $ mOrigin msg) 
+
+getContentWords :: EventTrigger -> [String]
+getContentWords = words . B.unpack . mMsg . snd
+
+-- class definition
 class IrcBehavior behavior where
   eventFromBehavior :: behavior -> IO IrcEvent
 
+-- SimpleBehavior
+data SimpleBehavior =
+  SimpleBehavior { simpleComputer :: EventTrigger -> IO () }
+
+instance IrcBehavior SimpleBehavior where
+  eventFromBehavior (SimpleBehavior computer) =
+    return $ Privmsg (curry computer)
+
+-- ChannelBehavior
 data ChannelBehavior =
   ChannelBehavior { channelComputer :: B.ByteString -> EventTrigger -> IO () }
 
--- IrcBehavior
 instance IrcBehavior ChannelBehavior where
   eventFromBehavior (ChannelBehavior computer) =
     let 
