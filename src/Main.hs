@@ -9,7 +9,7 @@ import WHBot
 myConfig :: [IrcEvent] -> IrcConfig
 myConfig myEvents = 
   (mkDefaultConfig "irc.freenode.net" "WreakingBot") 
-    {cChannels = ["#wreaking-test"], cEvents = myEvents}
+    {cChannels = ["#wreaking"], cEvents = myEvents}
 
 main :: IO ()
 main = 
