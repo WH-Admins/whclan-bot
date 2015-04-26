@@ -29,13 +29,13 @@ linkHelp =
 
 linkComputer :: EventTrigger -> IO ()
 linkComputer trigger =
-    when (head contentWords == "!link") $
-      replyMessage trigger $
-        case tail contentWords of
-          ["site"] -> "http://whclan.uk.to/"
-          ["roster"] -> "http://goo.gl/IxfKm5"
-          ["apl"] -> "https://altitudegame.com/forums/showthread.php?t=9733"
-          _ -> "possible arguments: site roster apl"
+  when (head contentWords == "!link") $
+    replyMessage trigger $
+      case tail contentWords of
+        ["site"] -> "http://whclan.uk.to/"
+        ["roster"] -> "http://goo.gl/IxfKm5"
+        ["apl"] -> "https://altitudegame.com/forums/showthread.php?t=9733"
+        _ -> "possible arguments: site roster apl"
   where contentWords = getContentWords trigger
 
 -- counterB
@@ -75,4 +75,5 @@ events =
   sequence 
     [ eventFromBehavior botsnackB
     , eventFromBehavior counterB 
-    , eventFromBehavior linkB ]
+    , eventFromBehavior linkB 
+    , eventFromBehavior helpB ]
