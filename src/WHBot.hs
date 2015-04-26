@@ -14,18 +14,15 @@ botsnackB = ChannelBehavior botsnackComputer
 
 botsnackComputer :: B.ByteString -> EventTrigger -> IO ()
 botsnackComputer channel trigger =
-  when (head contentWords == "!botsnack") $ 
-    replyMessage trigger "delicious, mkay"
-  where
-    contentWords = getContentWords trigger
+  when (head contentWords == "!botsnack") $ replyMessage trigger "delicious, mkay"
+  where contentWords = getContentWords trigger
 
 -- linkB
 linkB :: SimpleBehavior
 linkB = SimpleBehavior linkComputer
 
 linkHelp :: B.ByteString
-linkHelp =
-  "This utility provides various links to clan-related things. Acceptable arguments: site, roster, apl."
+linkHelp = "This utility provides various links to clan-related things. Acceptable arguments: site, roster, apl."
 
 linkComputer :: EventTrigger -> IO ()
 linkComputer trigger =
@@ -35,7 +32,7 @@ linkComputer trigger =
         ["site"] -> "http://whclan.uk.to/"
         ["roster"] -> "http://goo.gl/IxfKm5"
         ["apl"] -> "https://altitudegame.com/forums/showthread.php?t=9733"
-        _ -> "possible arguments: site roster apl"
+        _ -> linkHelp
   where contentWords = getContentWords trigger
 
 -- counterB
