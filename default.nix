@@ -1,9 +1,8 @@
 { nixpkgs ? (import <nixpkgs> {}), simpleirc ? (import /home/MagneticDuck/git/clones/SimpleIRC/default.nix {}) }:
 
 let
-  inherit (nixpkgs.haskellPackages) cabal;
   inherit (nixpkgs.haskellngPackages) bytestring;
-  inherit (nixpkgs.haskellngPackages) random;
+  inherit (nixpkgs.haskellPackages) cabal randomSource;
 
 in
   cabal.mkDerivation (self: {
@@ -12,7 +11,7 @@ in
     src = ./.;
     isLibrary = false;
     isExecutable = true;
-    buildDepends = [ simpleirc bytestring random ];
+    buildDepends = [ simpleirc bytestring randomSource ];
     meta = {
       homepage = "whclan.uk.to";
       description = "irc bot for .. um .. our clan. uh, why are you reading this?";
