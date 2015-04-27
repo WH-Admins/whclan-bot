@@ -6,6 +6,8 @@ import Data.Maybe
 import qualified Data.ByteString.Char8 as B
 import Control.Monad 
 
+import Paths_wclan_bot
+
 import System.Random
 
 import WHBot.Behaviors
@@ -19,6 +21,16 @@ botsnackComputer channel trigger =
   when (head contentWords == "!botsnack") $ replyMessage trigger "delicious, mkay"
   where contentWords = getContentWords trigger
 
+-- jokeB
+jokeB :: SimpleBehavior
+jokeB = SimpleBehavior jokeComputer
+
+jokeComputer :: EventTrigger -> IO ()
+jokeComputer trigger = 
+  when (head contentWords == "!joke") $ replyMessage trigger (B.pack $ getDataFileName "one-liners")
+  where
+    contentWords = getContentWords trigger
+
 -- slapB
 slapB :: ChannelBehavior
 slapB = ChannelBehavior slapComputer
@@ -28,7 +40,18 @@ slapWords victim =
   map (\x -> "*" ++ x ++ "*") $
     [ "attacks " ++ victim
     , "slaps " ++ victim ++ " with a dead fish"
-    , "blows up" ++ victim
+    , "slaps " ++ victim ++ " with a potatoe"
+    , "slaps " ++ victim ++ " with, uh.. with.. a um. nah."
+    , "asks " ++ victim ++ " if everything is alright"
+    , "asks " ++ victim ++ " if everything is alright, and then slaps them with a potatoe"
+    , "asks " ++ victim ++ " if everything is alright, and then blows them up with a potatoe"
+    , "asks " ++ victim ++ " if they want more tea"
+    , "blows up " ++ victim
+    , "blows up " ++ victim ++ " with a potatoe"
+    , "blows up " ++ victim ++ " with a dead fish"
+    , "throws a combustible potatoe at " ++ victim
+    , "throws a potatoe at " ++ victim
+    , "lectures " ++ victim ++ " on the many merits of functional-reactive programming"
     , "discusses politics with " ++ victim ]
 
 slapComputer :: B.ByteString -> EventTrigger -> IO ()
@@ -100,4 +123,5 @@ events =
     , eventFromBehavior counterB 
     , eventFromBehavior linkB 
     , eventFromBehavior helpB 
-    , eventFromBehavior slapB ]
+    , eventFromBehavior slapB 
+    , eventFromBehavior jokeB ]
