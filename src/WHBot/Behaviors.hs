@@ -1,5 +1,6 @@
 module WHBot.Behaviors
   ( replyMessage, getContentWords
+  , randomChoice
   , EventTrigger
 
   , eventFromBehavior 
@@ -14,6 +15,8 @@ import qualified Data.ByteString.Char8 as B
 import Control.Monad (void)
 import Data.IORef
 
+import System.Random
+
 chanFromMsg :: MIrc -> IrcMessage -> IO (Maybe B.ByteString)
 chanFromMsg s msg = 
   case mChan msg of
@@ -24,6 +27,12 @@ chanFromMsg s msg =
     Nothing -> failReturn
   where
     failReturn = return Nothing
+
+randomChoice :: [a] -> IO a
+randomChoice xs =
+  do
+    a <- randomRIO (0, (length xs) - 1)
+    return $ xs !! a
 
 type EventTrigger = (MIrc, IrcMessage)
 

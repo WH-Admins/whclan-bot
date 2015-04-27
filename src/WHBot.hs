@@ -6,11 +6,24 @@ import Data.Maybe
 import qualified Data.ByteString.Char8 as B
 import Control.Monad 
 
-import Paths_wclan_bot
-
-import System.Random
+import Paths_whclan_bot
 
 import WHBot.Behaviors
+
+jokeFile, linkFile :: String
+jokeFile = "/home/MagneticDuck/git/whclan-bot/src/one-liners"
+linkFile = "/home/MagneticDuck/git/whclan-bot/src/links"
+
+-- tickleB
+tickleB :: ChannelBehavior
+tickleB = ChannelBehavior tickleComputer
+
+tickleComputer :: B.ByteString -> EventTrigger -> IO ()
+tickleComputer channel trigger =
+  when (head contentWords == "!tickle") $ 
+    replyMessage trigger . B.pack $ 
+      "I've fking had it with you and your fkin tickles, " ++ (B.unpack . fromJust $ mNick (snd trigger))
+  where contentWords = getContentWords trigger
 
 -- botsnackB
 botsnackB :: ChannelBehavior
@@ -27,7 +40,10 @@ jokeB = SimpleBehavior jokeComputer
 
 jokeComputer :: EventTrigger -> IO ()
 jokeComputer trigger = 
-  when (head contentWords == "!joke") $ replyMessage trigger (B.pack $ getDataFileName "one-liners")
+  when (head contentWords == "!joke") $ 
+    do
+      jokes <- fmap lines $ readFile jokeFile
+      replyMessage trigger =<< (fmap B.pack $ randomChoice jokes)
   where
     contentWords = getContentWords trigger
 
@@ -54,34 +70,45 @@ slapWords victim =
     , "lectures " ++ victim ++ " on the many merits of functional-reactive programming"
     , "discusses politics with " ++ victim ]
 
+slapHelp :: B.ByteString
+slapHelp =
+  "This extremely useful utility lets you slap people when they deserve it / when you're in a bad mood. Can slap multiple people."
+
 slapComputer :: B.ByteString -> EventTrigger -> IO ()
 slapComputer channel trigger =
   when (head contentWords == "!slap") $ 
     case tail contentWords of
-      [victim] -> 
-        let choices = slapWords victim in
-          do
-            a <- randomRIO (0, ((length choices) - 1))
-            replyMessage trigger (B.pack (choices !! a))
-      _ -> return ()
+      victims@(_:_) -> 
+        (flip mapM_ victims) $ \victim ->
+          (replyMessage trigger . B.pack) =<< randomChoice (slapWords victim)
+      _ -> replyMessage trigger slapHelp
   where contentWords = getContentWords trigger
 
 -- linkB
 linkB :: SimpleBehavior
 linkB = SimpleBehavior linkComputer
 
-linkHelp :: B.ByteString
-linkHelp = "This utility provides various links to clan-related things. Acceptable arguments: site, roster, apl."
+linkFileData :: IO [(String, String)]
+linkFileData = 
+  do
+    linkLines <- fmap lines $ readFile linkFile
+    return $ zip (filter pred linkLines) (filter (not . pred) linkLines)
+  where
+    pred = (/= ' ') . head
+
+linkHelp :: IO B.ByteString
+linkHelp = linkFileData >>= return . B.pack . ("Currenly available links: " ++) . unwords . map fst 
 
 linkComputer :: EventTrigger -> IO ()
 linkComputer trigger =
   when (head contentWords == "!link") $
-    replyMessage trigger $
-      case tail contentWords of
-        ["site"] -> "http://whclan.uk.to/"
-        ["roster"] -> "http://goo.gl/IxfKm5"
-        ["apl"] -> "https://altitudegame.com/forums/showthread.php?t=9733"
-        _ -> linkHelp
+    case tail contentWords of
+      [name] ->
+        linkFileData >>= \mydata -> 
+          case filter ((== name) . fst) mydata of
+            ((_, mylink):_) -> replyMessage trigger . B.pack $ name ++ " -> " ++ mylink
+            _ -> replyMessage trigger . B.pack $ "there appears to be no link with the name " ++ name
+      _ -> replyMessage trigger =<< linkHelp
   where contentWords = getContentWords trigger
 
 -- counterB
@@ -112,16 +139,17 @@ helpComputer trigger =
   when ((head contentWords) == "!help") $
     case tail contentWords of
       ["credits"] -> replyMessage trigger "Programmed by MagneticDuck in the wonderful language of Haskell."
-      _ -> replyMessage trigger "This is a simple IRC bot with a few commands that can be of use to the #wreaking channel. Currently, supported commands are: !help !link !counter !botsnack"
+      _ -> replyMessage trigger "This is a simple IRC bot with a few commands that can be of use to the #wreaking channel. Currently, supported commands are: !help !link !counter !botsnack !slap !joke !tickle"
   where
     contentWords = getContentWords trigger
 
 events :: IO [IrcEvent]
 events = 
   sequence 
-    [ eventFromBehavior botsnackB
-    , eventFromBehavior counterB 
+    [ eventFromBehavior helpB 
     , eventFromBehavior linkB 
-    , eventFromBehavior helpB 
+    , eventFromBehavior counterB 
+    , eventFromBehavior botsnackB
     , eventFromBehavior slapB 
-    , eventFromBehavior jokeB ]
+    , eventFromBehavior jokeB 
+    , eventFromBehavior tickleB ]
