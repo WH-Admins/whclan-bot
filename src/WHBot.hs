@@ -6,6 +6,8 @@ import Data.Maybe
 import qualified Data.ByteString.Char8 as B
 import Control.Monad 
 
+import System.Random
+
 import WHBot.Behaviors
 
 -- botsnackB
@@ -15,6 +17,31 @@ botsnackB = ChannelBehavior botsnackComputer
 botsnackComputer :: B.ByteString -> EventTrigger -> IO ()
 botsnackComputer channel trigger =
   when (head contentWords == "!botsnack") $ replyMessage trigger "delicious, mkay"
+  where contentWords = getContentWords trigger
+
+-- slapB
+slapB :: ChannelBehavior
+slapB = ChannelBehavior slapComputer
+
+slapWords :: String-> [String]
+slapWords victim =
+  map (\x -> "*" ++ x ++ "*") $
+    [ "attacks" ++ victim
+    , "slaps " ++ victim ++ " with a dead fish"
+    , "blows up" ++ victim
+    , "reads a copy of 'slapping for dummies'"
+    , "discusses politics with " ++ victim ]
+
+slapComputer :: B.ByteString -> EventTrigger -> IO ()
+slapComputer channel trigger =
+  when (head contentWords == "!slap") $ 
+    case tail contentWords of
+      [victim] -> 
+        let choices = slapWords (B.unpack victim) in
+          do
+            a <- randomRIO (0, ((length choices) - 1))
+            replyMessage trigger (B.pack choices !! a)
+      _ -> return ()
   where contentWords = getContentWords trigger
 
 -- linkB
@@ -73,4 +100,5 @@ events =
     [ eventFromBehavior botsnackB
     , eventFromBehavior counterB 
     , eventFromBehavior linkB 
-    , eventFromBehavior helpB ]
+    , eventFromBehavior helpB 
+    , eventFromBehavior slapB ]

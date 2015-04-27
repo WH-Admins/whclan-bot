@@ -3,6 +3,7 @@
 let
   inherit (nixpkgs.haskellPackages) cabal;
   inherit (nixpkgs.haskellngPackages) bytestring;
+  inherit (nixpkgs.haskellngPackages) random;
 
 in
   cabal.mkDerivation (self: {
@@ -11,7 +12,7 @@ in
     src = ./.;
     isLibrary = false;
     isExecutable = true;
-    buildDepends = [ simpleirc bytestring ];
+    buildDepends = [ simpleirc bytestring random ];
     meta = {
       homepage = "whclan.uk.to";
       description = "irc bot for .. um .. our clan. uh, why are you reading this?";
