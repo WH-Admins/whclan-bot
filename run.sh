@@ -1,0 +1,1 @@
+./result/bin/whclan-bot
