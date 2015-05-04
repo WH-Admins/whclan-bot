@@ -1,5 +1,4 @@
 { nixpkgs ? (import <nixpkgs> {}), simpleirc ? (import /home/user/git/SimpleIRC/default.nix {}) }:
-
 let
   inherit (nixpkgs.haskellngPackages) bytestring;
   inherit (nixpkgs.haskellPackages) cabal randomSource;
