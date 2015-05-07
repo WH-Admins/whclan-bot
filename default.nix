@@ -1,14 +1,12 @@
 { nixpkgs ? (import <nixpkgs> {}) }:
-
 let
-  inherit (nixpkgs) fetchgit;
-
   simpleirc-source =
     fetchgit 
       { url = "git://github.com/MagneticDuck/simpleirc.git";
         sha256 = "8175187abcfa14aaf899f14c01e61b4f3dad425f37ddf6fc097e2f1573f7c071"; };
   simpleirc = import simpleirc-source {};
 
+  inherit (nixpkgs) fetchgit;
   inherit (nixpkgs.haskellngPackages) bytestring;
   inherit (nixpkgs.haskellPackages) cabal randomSource;
 

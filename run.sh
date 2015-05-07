@@ -1,1 +1,1 @@
-./result/bin/whclan-bot
+nohup ./result/bin/whclan-bot &
