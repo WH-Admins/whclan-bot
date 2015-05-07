@@ -15,5 +15,6 @@ main :: IO ()
 main = 
   void $
     do
+      putStrLn =<< jokeFile
       myEvents <- events
       connect (myConfig myEvents) False True

@@ -1,5 +1,5 @@
 module WHBot 
-  ( events ) where
+  ( jokeFile, events ) where
 
 import Network.SimpleIRC
 import Data.Maybe
@@ -10,9 +10,13 @@ import Paths_whclan_bot
 
 import WHBot.Behaviors
 
-jokeFile, linkFile :: String
-jokeFile = "/home/MagneticDuck/git/whclan-bot/src/one-liners"
-linkFile = "/home/MagneticDuck/git/whclan-bot/src/links"
+-- fixme
+jokeFile, linkFile :: IO String
+jokeFile = getDataFileName "one-liners"
+linkFile = getDataFileName "links"
+
+--jokeFile = "/home/user/git/whclan-bot/src/one-liners"
+--linkFile = "/home/user/git/whclan-bot/src/links"
 
 -- tickleB
 tickleB :: ChannelBehavior
@@ -42,7 +46,7 @@ jokeComputer :: EventTrigger -> IO ()
 jokeComputer trigger = 
   when (head contentWords == "!joke") $ 
     do
-      jokes <- fmap lines $ readFile jokeFile
+      jokes <- (fmap lines . readFile) =<< jokeFile
       replyMessage trigger =<< (fmap B.pack $ randomChoice jokes)
   where
     contentWords = getContentWords trigger
@@ -91,7 +95,7 @@ linkB = SimpleBehavior linkComputer
 linkFileData :: IO [(String, String)]
 linkFileData = 
   do
-    linkLines <- fmap lines $ readFile linkFile
+    linkLines <- (fmap lines . readFile) =<< linkFile
     return $ zip (filter pred linkLines) (filter (not . pred) linkLines)
   where
     pred = (/= ' ') . head
