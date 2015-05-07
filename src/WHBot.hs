@@ -15,9 +15,6 @@ jokeFile, linkFile :: IO String
 jokeFile = getDataFileName "one-liners"
 linkFile = getDataFileName "links"
 
---jokeFile = "/home/user/git/whclan-bot/src/one-liners"
---linkFile = "/home/user/git/whclan-bot/src/links"
-
 -- tickleB
 tickleB :: ChannelBehavior
 tickleB = ChannelBehavior tickleComputer
