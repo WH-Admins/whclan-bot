@@ -152,5 +152,4 @@ events =
     , eventFromBehavior counterB 
     , eventFromBehavior botsnackB
     , eventFromBehavior slapB 
-    , eventFromBehavior jokeB 
     , eventFromBehavior tickleB ]
